@@ -5,5 +5,6 @@
 
 void printArray(int array[], uint64_t size);
 void randomizeArray(int array[], uint64_t size);
+void randomizeArray_range(int array[], uint64_t size, int min, int max);
 
 #endif //ARRAY_H

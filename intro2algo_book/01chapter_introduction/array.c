@@ -5,7 +5,6 @@
 
 void printArray(int array[], uint64_t size)
 {
-    printf("Integer array size %lu:\n", size);
     for (uint64_t k = 0; k < size; k++)
         printf("%d ", array[k]);
     printf("\n");
