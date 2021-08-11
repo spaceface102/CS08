@@ -3,17 +3,18 @@
 #include <time.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 
 bool isSorted(int array[], uint64_t size)
 {
     for (uint64_t k = 1; k < size; k++)
         if (array[k - 1] > array[k])
         {
-            printf("\n\nFailed isSorted() Dump:\n"
-                "Size of array: %lu\n"
-                "Failed index: %lu\n"
-                "array[index] = %d\n"
-                "array[index - 1] = %d\n\n",
+            printf("Failed isSorted() Dump:\n"
+                "\tSize of array: %lu\n"
+                "\tFailed index (counting from 0): %lu\n"
+                "\tarray[index] = %d\n"
+                "\tarray[index - 1] = %d\n",
                 size, k, array[k], array[k - 1]
             );
             return false;
@@ -33,13 +34,15 @@ void testSortFunc(sortFunc sortfunc, const char* sortfuncName,
                 int array[], uint64_t size)
 {
     printf("SORT FUNCTION: %s\n", sortfuncName);
-    printf("ARRAY SIZE   : %lu", size);
+    printf("ARRAY SIZE   : %lu\n", size);
 
     #if EXTRA_INFO
     printf("\nUnsorted array:\n");
     printArray(array, size);
     printf("\n");
     #endif
+
+    printf("Time took: %lfs\n", timeSortingFunc(sortfunc, array, size));
 
     printf("%s\n", (isSorted(array, size)) ? 
         "Sorted successfully!" :
@@ -93,6 +96,7 @@ void CompareSortFuncs(sortFunc sortfuncArray[],
             testSortFunc(sortfuncArray[k], sortfuncNames[k], 
                 currentRandArray, currentArraySize
             );
+            printf("\n");
         }
 
         prevArraySize = currentArraySize;
