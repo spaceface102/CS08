@@ -58,10 +58,10 @@ void testSortFunc(sortFunc sortfunc, const char* sortfuncName,
 }
 
 void CompareSortFuncs(sortFunc sortfuncArray[], 
-                            const char* sortfuncNames[],
-                            uint64_t numSortFuncs, 
-                            uint64_t maxArraySize,
-                            uint64_t multiplier)
+                        const char* sortfuncNames[],
+                        uint64_t numSortFuncs, 
+                        uint64_t maxArraySize,
+                        uint64_t multiplier)
 {
     int *baseRandArray = NULL;
     int *currentRandArray = NULL;

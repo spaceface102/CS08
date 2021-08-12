@@ -19,10 +19,10 @@ void testSortFunc(sortFunc sortfunc, const char* sortfuncName,
                     int array[], uint64_t size);
 
 void CompareSortFuncs(sortFunc sortfuncArray[], 
-                            const char* sortfuncNames[],
-                            uint64_t numSortFuncs, 
-                            uint64_t maxArraySize,
-                            uint64_t multiplier);
+                        const char* sortfuncNames[],
+                        uint64_t numSortFuncs, 
+                        uint64_t maxArraySize,
+                        uint64_t multiplier);
 //END OF FUNCTION DECLERATIONS
 
 #endif //SORT_TEST_H
