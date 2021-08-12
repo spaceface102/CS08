@@ -1,10 +1,11 @@
 CC = gcc #I added this to change default compiler
-CPPFLAGS += -MMD -MP #these flags ensure auto dependencies based on c file
+CFLAGS += -MD -MP #these flags ensure auto dependencies based on c file
 SRC = $(wildcard *.c) #getting a list of all the local .c files
 EXEC = a.out
 
+#this does the linking
 $(EXEC): $(SRC:%.c=%.o)
-	$(CC) -o $@ $^
+	$(CC) $^ -o $@
 
 clean:
 	rm -f *.o
