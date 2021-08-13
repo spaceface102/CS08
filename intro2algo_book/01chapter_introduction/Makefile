@@ -14,6 +14,7 @@
 #	change the makefile! (If still confused, look at debug and release)
 #	targets already made
 
+
 #FIELDS OK TO MODIFY
 EXEC = a.out
 DEPSDIR = deps
@@ -56,7 +57,6 @@ $(DEPSDIR)/%.d: $(SRCSDIR)/%.c $(PY_DEPMAKER_SCRIPT)
 	#making $@
 	@$(CC) $(DEPFLAGS) $<
 	@./$(PY_DEPMAKER_SCRIPT) $(PY_DEPARGS)
-
 
 clean:
 	rm -f -r *$(OBJSDIR)
