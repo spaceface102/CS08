@@ -1,15 +1,22 @@
+#FIELDS OFTEN MODIFIED
 EXEC = a.out
 DEPSDIR = deps
 OBJSDIR = build
+CC = gcc
+#DONT USE ".", use $(shell pwd) to get an 
+#absolute path to current directory
+#else, just the name of the directory in
+#the current directory, such as srcs
 SRCSDIR = srcs
+
+
+#FIELDS RARELY MODIFIED
 SRCS = $(patsubst $(SRCSDIR)/%.c, %.c, $(wildcard $(SRCSDIR)/*.c)) #getting a list of all the local .c files
 OBJS = $(patsubst %.c, $(OBJSDIR)/%.o, $(SRCS))
 DEPS = $(patsubst %.c, $(DEPSDIR)/%.d, $(SRCS))
-CC = gcc #I added this to change default compiler
 
 
 .PHONY: clean
-
 
 #this does the linking
 $(EXEC): $(OBJS)
@@ -20,13 +27,13 @@ $(EXEC): $(OBJS)
 #-MP creates a phony rules (help avoid problems with deleted headers)
 #-MF sets the name of the dependency file to a custom name
 #-MT sets a different target name for the generated rule
+#final $< states the src file to extract the rules from
 $(DEPSDIR)/%.d: $(SRCSDIR)/%.c
-	@#do mkdir to ensure folders exist
-	@#before making the files
 	@mkdir -p $(DEPSDIR)
 	@mkdir -p $(OBJSDIR)
-	$(CC) -MM -MP -MF $@ -MT $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<) $<
-	./make_depfiles.py $@ "$(CC) $< -c -o $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<)"
+	#making $@, remove leading @ in the Makefile for debuging
+	@$(CC) -MM -MP -MF $@ -MT $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<) $<
+	@./make_depfiles.py $@ "$(CC) $< -c -o $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<)"
 
 clean:
 	rm -f $(OBJSDIR)/*.o
@@ -40,6 +47,10 @@ include $(DEPS)
 #mkdir -p ensures that no errors are thrown even if the file already exists
 #.PHONY targets are used when the target is not a file
 #-MM shows all the, non standard, dependencies that a c file has (gcc)
+#	One thing to watch out for is that the rule will only keep the path
+#	of the source file in the depenency/prerequiste list IF it is not "."
+#	(not sure of ".."), but in those cases, it is just better to use an
+#	absolute address. This is not a problem if for example its like srcs/main.c
 #-MP adds a phony target for all the header files created by the -MM rule (gcc)
 #-MF allows you to change the name of the output "sub makefile" made by the -MM option
 #-MT allows you to change the target of the rule made by -MM (useful for organizing)
