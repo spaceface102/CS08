@@ -2,6 +2,7 @@
 *.out
 *.exe
 *.o
+*.d
 *.tar
 *.zip
 *.mp4

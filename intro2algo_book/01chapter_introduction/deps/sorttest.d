@@ -1,6 +1,6 @@
-build/sorttest.o: srcs/sorttest.c srcs/sorttest.h srcs/array.h
-	gcc srcs/sorttest.c -c -o  build/sorttest.o
+build/sorttest.o: srcs/sorttest.c hdrs/sorttest.h hdrs/array.h
+	gcc srcs/sorttest.c -Wall -Wpedantic -g -I hdrs  -c -o  build/sorttest.o
 
-srcs/sorttest.h:
+hdrs/sorttest.h:
 
-srcs/array.h:
+hdrs/array.h:

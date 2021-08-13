@@ -1,4 +1,4 @@
-build/insertion_sort.o: srcs/insertion_sort.c srcs/insertion_sort.h
-	gcc srcs/insertion_sort.c -c -o  build/insertion_sort.o
+build/insertion_sort.o: srcs/insertion_sort.c hdrs/insertion_sort.h
+	gcc srcs/insertion_sort.c -Wall -Wpedantic -g -I hdrs  -c -o  build/insertion_sort.o
 
-srcs/insertion_sort.h:
+hdrs/insertion_sort.h:

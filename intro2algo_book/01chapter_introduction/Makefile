@@ -2,7 +2,10 @@
 EXEC = a.out
 DEPSDIR = deps
 OBJSDIR = build
+HDRSDIR = hdrs #rember to include -I to specify where the header files are
 CC = gcc
+CFLAGS = -Wall -Wpedantic -g -I $(HDRSDIR)
+LFLAGS = -Wall -Wpedantic -g
 #DONT USE ".", use $(shell pwd) to get an 
 #absolute path to current directory
 #else, just the name of the directory in
@@ -11,29 +14,31 @@ SRCSDIR = srcs
 
 
 #FIELDS RARELY MODIFIED
-SRCS = $(patsubst $(SRCSDIR)/%.c, %.c, $(wildcard $(SRCSDIR)/*.c)) #getting a list of all the local .c files
+SRCS = $(patsubst $(SRCSDIR)/%.c, %.c, $(wildcard $(SRCSDIR)/*.c))
 OBJS = $(patsubst %.c, $(OBJSDIR)/%.o, $(SRCS))
 DEPS = $(patsubst %.c, $(DEPSDIR)/%.d, $(SRCS))
 
 
-.PHONY: clean
+#DEPS BUILDING SPECIFIC FIELDS (RARELY MODIFIED)
+TARGET = $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<)
+DEPFLAGS = -MM -MP -MF $@ -MT $(TARGET) -I $(HDRSDIR)
+PY_DEPARGS = $@ "$(CC) $< $(CFLAGS) -c -o $(TARGET)"
+
+
+.PHONY: clean all
+
+all: $(EXEC)
 
 #this does the linking
 $(EXEC): $(OBJS)
-	$(CC) $^ -o $@
+	$(CC) $^ $(LFLAGS) -o $@
 
-#cretes a dependency file
-#-MM creates a core rule
-#-MP creates a phony rules (help avoid problems with deleted headers)
-#-MF sets the name of the dependency file to a custom name
-#-MT sets a different target name for the generated rule
-#final $< states the src file to extract the rules from
 $(DEPSDIR)/%.d: $(SRCSDIR)/%.c
 	@mkdir -p $(DEPSDIR)
 	@mkdir -p $(OBJSDIR)
-	#making $@, remove leading @ in the Makefile for debuging
-	@$(CC) -MM -MP -MF $@ -MT $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<) $<
-	@./make_depfiles.py $@ "$(CC) $< -c -o $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<)"
+	#making $@
+	@$(CC) $(DEPFLAGS) $<
+	@./make_depfiles.py $(PY_DEPARGS)
 
 clean:
 	rm -f $(OBJSDIR)/*.o
@@ -61,6 +66,9 @@ include $(DEPS)
 #	is, if the planned included makefile does not exists, assuming you have a
 #	a rule to build that make file, make will go ahead and make the "sub makefile"
 #	and then actually include it! Pretty darn cool
+#	Also, I think that no matter what, this is also the first thing to be run
+#	in the makefile. I mean just run make clean twice consecutively, and I think
+#	you can start to piece it together
 #rules with just <filename>.o:<filename>.c will run without any recipie
 #	and will compile using what I would like to assume, core variables
 #	such as $(CC) which choses compiler, and $(CFLAGS) which chooses aditional

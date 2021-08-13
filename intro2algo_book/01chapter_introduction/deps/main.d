@@ -1,11 +1,11 @@
-build/main.o: srcs/main.c srcs/mysort.h srcs/insertion_sort.h \
- srcs/sorttest.h srcs/array.h
-	gcc srcs/main.c -c -o  build/main.o
+build/main.o: srcs/main.c hdrs/mysort.h hdrs/insertion_sort.h \
+ hdrs/sorttest.h hdrs/array.h
+	gcc srcs/main.c -Wall -Wpedantic -g -I hdrs  -c -o  build/main.o
 
-srcs/mysort.h:
+hdrs/mysort.h:
 
-srcs/insertion_sort.h:
+hdrs/insertion_sort.h:
 
-srcs/sorttest.h:
+hdrs/sorttest.h:
 
-srcs/array.h:
+hdrs/array.h:
