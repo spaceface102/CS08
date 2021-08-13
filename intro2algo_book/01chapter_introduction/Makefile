@@ -1,4 +1,20 @@
-#FIELDS OFTEN MODIFIED
+#HOW TO USE THIS MAKEFILE
+#Try to ONLY modify the variables that have been marked as
+#	ok to modify. Be carefule of modifiying any fields
+#	marked as rarely modified.
+#To set the location of either the deps, objs, hdrs, or srcs
+#	to the current directory DON'T USE ".", instead use
+#	$(shell pwd). Else, any other directory name is fine
+#In order to make a specific building target that has different
+#	input for the makefile variables/fields, make a .PHONY target
+#	that calls make (basically making a recursive vall to make)
+#	with modified variables:
+#	ex. make CFLAGS=-Ofast will make the changes everywhere that
+#	CFLAGS appears in the Makefile, without having to permenetly
+#	change the makefile! (If still confused, look at debug and release)
+#	targets already made
+
+#FIELDS OK TO MODIFY
 EXEC = a.out
 DEPSDIR = deps
 OBJSDIR = build
@@ -26,7 +42,7 @@ PY_DEPARGS = $@ "$(CC) $< $(CFLAGS) -c -o $(TARGET)"
 PY_DEPMAKER_SCRIPT = make_depfiles.py
 
 
-.PHONY: clean all
+.PHONY: clean all release debug
 
 all: $(EXEC)
 
@@ -43,9 +59,26 @@ $(DEPSDIR)/%.d: $(SRCSDIR)/%.c $(PY_DEPMAKER_SCRIPT)
 
 
 clean:
-	rm -f $(OBJSDIR)/*.o
-	rm -f $(DEPSDIR)/*.d
-	rm -f $(EXEC)
+	rm -f -r *$(OBJSDIR)
+	rm -f -r *$(DEPSDIR)
+	rm -f *$(EXEC)
+
+#I do a "recursive call" of make to get arround the issue of
+#include $(DEPS) building the deps even before a target such
+#as release changes for example the CFLAGS. Remember, include
+#will always do its thang first, even before an explicitly
+#called target such as release
+release:
+	make CFLAGS="-ansi -std=c99 -Wall -Wpedantic -O2 -I $(HDRSDIR)" \
+	LFLAGS="-ansi -std=c99 -Wall -Wpedantic -O2" \
+	DEPSDIR=$@_$(DEPSDIR) OBJSDIR=$@_$(OBJSDIR) \
+	EXEC=$@_$(EXEC)
+
+debug:
+	make CFLAGS="-ansi -std=c99 -Wall -Wpedantic -O0 -g -I $(HDRSDIR)" \
+	LFLAGS="-ansi -std=c99 -Wall -Wpedantic -O0 -g" \
+	DEPSDIR=$@_$(DEPSDIR) OBJSDIR=$@_$(OBJSDIR) \
+	EXEC=$@_$(EXEC)
 
 include $(DEPS) #first "rule" to be run no matter what
 
@@ -55,7 +88,7 @@ include $(DEPS) #first "rule" to be run no matter what
 #lot more sense
 $(PY_DEPMAKER_SCRIPT):
 	#making $@ custom built by yours truly
-	@echo "#!/usr/bin/python3" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "#!/usr/bin/python3" > $(PY_DEPMAKER_SCRIPT)
 	@echo "" >> $(PY_DEPMAKER_SCRIPT)
 	@echo "import sys" >> $(PY_DEPMAKER_SCRIPT)
 	@echo "import os" >> $(PY_DEPMAKER_SCRIPT)
