@@ -4,8 +4,8 @@ DEPSDIR = deps
 OBJSDIR = build
 HDRSDIR = hdrs #rember to include -I to specify where the header files are
 CC = gcc
-CFLAGS = -Wall -Wpedantic -g -I $(HDRSDIR)
-LFLAGS = -Wall -Wpedantic -g
+CFLAGS = -ansi -std=c99 -Wall -Wpedantic -g -I $(HDRSDIR)
+LFLAGS = -ansi -std=c99 -Wall -Wpedantic -g
 #DONT USE ".", use $(shell pwd) to get an 
 #absolute path to current directory
 #else, just the name of the directory in
@@ -23,6 +23,7 @@ DEPS = $(patsubst %.c, $(DEPSDIR)/%.d, $(SRCS))
 TARGET = $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<)
 DEPFLAGS = -MM -MP -MF $@ -MT $(TARGET) -I $(HDRSDIR)
 PY_DEPARGS = $@ "$(CC) $< $(CFLAGS) -c -o $(TARGET)"
+PY_DEPMAKER_SCRIPT = make_depfiles.py
 
 
 .PHONY: clean all
@@ -33,19 +34,76 @@ all: $(EXEC)
 $(EXEC): $(OBJS)
 	$(CC) $^ $(LFLAGS) -o $@
 
-$(DEPSDIR)/%.d: $(SRCSDIR)/%.c
+$(DEPSDIR)/%.d: $(SRCSDIR)/%.c $(PY_DEPMAKER_SCRIPT)
 	@mkdir -p $(DEPSDIR)
 	@mkdir -p $(OBJSDIR)
 	#making $@
 	@$(CC) $(DEPFLAGS) $<
-	@./make_depfiles.py $(PY_DEPARGS)
+	@./$(PY_DEPMAKER_SCRIPT) $(PY_DEPARGS)
+
 
 clean:
 	rm -f $(OBJSDIR)/*.o
 	rm -f $(DEPSDIR)/*.d
 	rm -f $(EXEC)
 
-include $(DEPS)
+include $(DEPS) #first "rule" to be run no matter what
+
+#this writes out the whole python script if it doesn't
+#already exist. ITS UGLY BUT IT WORKS! Just run the make
+#command and see what is created, I swear it will make a
+#lot more sense
+$(PY_DEPMAKER_SCRIPT):
+	#making $@ custom built by yours truly
+	@echo "#!/usr/bin/python3" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "import sys" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "import os" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "def main(fname : str, recipe : str) -> None:" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    '''" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    Intended to be used with automatic dependency" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    building makefiles. The problem it seeks to solve" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    is choosing a directory into where to dump the object" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    files." >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    ex. gcc -M -MP -MF deps/main.d -MT build/main.o main.c" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    " >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    fname is the name of the file produced by the above" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    gcc -M (or -MM) -MP -MF <fname> -MT <target> combo" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    recipe defines, well, the recipe for the automatically" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    created rule." >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    '''" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    new_depfile_name = \".temp_dep_file.d\"" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    base_depfile = open(fname, \"r\")" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    new_depfile = open(new_depfile_name, \"w\")" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    for line in base_depfile:" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "        new_depfile.write(line)" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "        if line[-2] != '\\\\\\': #line[-1] is always '/n'" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "            new_depfile.write(\"\\\t\")" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "            new_depfile.write(recipe)" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "            new_depfile.write(\"\\\n\")" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "            break" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    #write the rest of the file" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    for line in base_depfile:" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "        new_depfile.write(line)" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    new_depfile.close()" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    base_depfile.close()" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    #overwrite base_depfile with new dep file" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    #that also includes the specific recipe" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    os.rename(new_depfile_name, fname)" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "if __name__ == \"__main__\":" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    if len(sys.argv) > 2:" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "        main(sys.argv[1], sys.argv[2])" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    else:" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "        print(sys.argv[0] + \" <dep fname> <recipe (eg gcc -c)>\")" >> $(PY_DEPMAKER_SCRIPT)
+	@chmod 755 $(PY_DEPMAKER_SCRIPT)
 
 #WHAT I LEARNED MAKING THIS MAKEFILE
 #@ infront of a line a recipie, shuts up the output to the terminal
