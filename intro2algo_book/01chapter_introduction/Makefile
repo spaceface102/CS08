@@ -28,16 +28,17 @@ LFLAGS = -ansi -std=c99 -Wall -Wpedantic -g
 #else, just the name of the directory in
 #the current directory, such as srcs
 SRCSDIR = srcs
+SRC_FILE_EXTENSION =.c
 
 
 #FIELDS RARELY MODIFIED
-SRCS = $(patsubst $(SRCSDIR)/%.c, %.c, $(wildcard $(SRCSDIR)/*.c))
-OBJS = $(patsubst %.c, $(OBJSDIR)/%.o, $(SRCS))
-DEPS = $(patsubst %.c, $(DEPSDIR)/%.d, $(SRCS))
+SRCS = $(patsubst $(SRCSDIR)/%$(SRC_FILE_EXTENSION), %$(SRC_FILE_EXTENSION), $(wildcard $(SRCSDIR)/*$(SRC_FILE_EXTENSION)))
+OBJS = $(patsubst %$(SRC_FILE_EXTENSION), $(OBJSDIR)/%.o, $(SRCS))
+DEPS = $(patsubst %$(SRC_FILE_EXTENSION), $(DEPSDIR)/%.d, $(SRCS))
 
 
 #DEPS BUILDING SPECIFIC FIELDS (RARELY MODIFIED)
-TARGET = $(patsubst $(SRCSDIR)/%.c, $(OBJSDIR)/%.o, $<)
+TARGET = $(patsubst $(SRCSDIR)/%$(SRC_FILE_EXTENSION), $(OBJSDIR)/%.o, $<)
 DEPFLAGS = -MM -MP -MF $@ -MT $(TARGET) -I $(HDRSDIR)
 PY_DEPARGS = $@ "$(CC) $< $(CFLAGS) -c -o $(TARGET)"
 PY_DEPMAKER_SCRIPT = make_depfiles.py
@@ -51,7 +52,7 @@ all: $(EXEC)
 $(EXEC): $(OBJS)
 	$(CC) $^ $(LFLAGS) -o $@
 
-$(DEPSDIR)/%.d: $(SRCSDIR)/%.c $(PY_DEPMAKER_SCRIPT)
+$(DEPSDIR)/%.d: $(SRCSDIR)/%$(SRC_FILE_EXTENSION) $(PY_DEPMAKER_SCRIPT)
 	@mkdir -p $(DEPSDIR)
 	@mkdir -p $(OBJSDIR)
 	#making $@
