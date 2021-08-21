@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     CompareSortFuncs(
         allsortFuncs, sortfuncNames,
-        numsortFuncs, 64, 2
+        numsortFuncs, 1e5, 10
     );
 
     return 0;
