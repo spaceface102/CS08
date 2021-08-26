@@ -4,6 +4,9 @@ MyGrid::MyGrid(unsigned width, unsigned height, float block_side_length)
     : width(width), height(height), block_side_length(block_side_length)
 {
     block.setSize(sf::Vector2f(block_side_length, block_side_length));
+    block.setFillColor(sf::Color::White);
+    block.setOutlineColor(sf::Color::Black);
+    block.setOutlineThickness(block_side_length*0.1f);
 }
 //EOF
 

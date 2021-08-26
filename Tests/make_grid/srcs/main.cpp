@@ -4,7 +4,7 @@
 int main(void)
 {
     sf::RenderWindow window(sf::VideoMode(1000, 1000), "Hello Grid!");
-    MyGrid agrid(50, 50, 400);
+    MyGrid agrid(50, 50, 20);
 
     window.setFramerateLimit(60);
     while(window.isOpen())

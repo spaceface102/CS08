@@ -1,0 +1,140 @@
+#include <SFML/Graphics.hpp>
+#include <iostream>
+
+const unsigned ROWS = 50;
+const unsigned COLS = 50;
+const unsigned CONWAY_CELL_SIZE = 20;
+
+struct Pos2D
+{
+    unsigned x;
+    unsigned y;
+};
+
+//FUNCTION DECLERATIONS
+unsigned DisplayConwayGrid(const bool (&conwayCellState)[ROWS][COLS], sf::RenderWindow& window);
+void SetNextGeneration(bool (&conwayCellState)[ROWS][COLS]);
+//END OF FUNCTION DECLERATIONS
+
+
+int main(void)
+{
+    bool conwayCellState[ROWS][COLS] = {false}; //All cells, status is either live or dead
+    sf::RenderWindow window(
+        sf::VideoMode(COLS*CONWAY_CELL_SIZE, ROWS*CONWAY_CELL_SIZE),
+        "Conway's Game Of Life!",
+        sf::Style::Default //^ sf::Style::Resize //remove the resize option
+    );
+
+    window.setFramerateLimit(30); //max frames per second
+    while (window.isOpen())
+    {
+        std::cout << "Input State:\n"
+        << "Left click:  Set cells as active!\n"
+        << "Right click: Set cells as NOT active\n"
+        << "HIT SPACE TO RUN!\n";
+        while(!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && window.isOpen())
+        {
+            sf::Event event;
+
+            while(window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    window.close();
+                    return 0;
+                }
+            }
+
+            //Left Click activate cell
+            if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
+            {
+                sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+                conwayCellState[pixelPos.x/CONWAY_CELL_SIZE][pixelPos.y/CONWAY_CELL_SIZE] = true;
+            }
+            //Right Click un-activate cell
+            else if (sf::Mouse::isButtonPressed(sf::Mouse::Button::Right))
+            {
+                sf::Vector2i pixelPos = sf::Mouse::getPosition(window);
+                conwayCellState[pixelPos.x/CONWAY_CELL_SIZE][pixelPos.y/CONWAY_CELL_SIZE] = false;
+            }
+
+            window.clear();
+            DisplayConwayGrid(conwayCellState, window);
+            window.display();
+        }
+
+        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {}
+
+        std::cout << "Running...\n"
+        << "HIT SPACE TO STOP RUNNING!\n";
+        while(!sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && window.isOpen())
+        {
+            sf::Event event;
+
+            while(window.pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    window.close();
+                    return 0;
+                }
+            }
+
+            window.clear();
+            SetNextGeneration(conwayCellState);
+            //DisplayConwayGrid will return the number of active
+            //cells, therefore if no active cells, we are done.
+            if (DisplayConwayGrid(conwayCellState, window) == 0)
+                break;
+            window.display();
+        }
+
+        while (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {}
+    }
+
+    std::cout << "John Conway is a cool dude, RIP.\n";
+    std::cout << "Thanks for playing the game!\n";
+
+    return 0;
+}
+//EOF
+
+unsigned DisplayConwayGrid(const bool (&conwayCellState)[ROWS][COLS], sf::RenderWindow& window)
+{
+    sf::RectangleShape block;
+    unsigned activeCells;
+
+    activeCells = 0; //track how many active cells
+    //set block options
+    block.setSize(sf::Vector2f(CONWAY_CELL_SIZE, CONWAY_CELL_SIZE));
+    block.setFillColor(sf::Color::White);
+    block.setOutlineColor(sf::Color::Black);
+    block.setOutlineThickness(0.1f*CONWAY_CELL_SIZE);
+
+    for (unsigned x = 0; x < ROWS; x++)
+    {
+        for (unsigned y = 0; y < COLS; y++)
+        {
+            block.setPosition(x*CONWAY_CELL_SIZE, y*CONWAY_CELL_SIZE);
+            if (conwayCellState[x][y])
+            {
+                block.setFillColor(sf::Color::Black);
+                window.draw(block);
+                block.setFillColor(sf::Color::White); //go back to normal color
+                activeCells++;
+            }
+            else
+                window.draw(block);
+        }
+    }
+
+    return activeCells;
+}
+//EOF
+
+void SetNextGeneration(bool (&conwayCellState)[ROWS][COLS])
+{
+
+}
+//EOF
