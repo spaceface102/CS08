@@ -2,46 +2,24 @@
 #define CONWAY_GAME_OF_LIFE_CLASS_H
 
 #include <SFML/Graphics.hpp>
+#include "ConwayCell.h"
 #include <vector>
-
-struct Core_Attributes_Struct
-{
-    unsigned width;
-    unsigned height;
-    unsigned cell_size;
-};
-
-struct Block_Attributes_Struct
-{
-    sf::Color alive;
-    sf::Color dead;
-};
-
-struct ConwayGameAttributes
-{
-    //these fields can not be modified once set
-    const Core_Attributes_Struct core_attributes;
-    sf::RectangleShape block;
-    Block_Attributes_Struct block_attributes;
-    sf::RenderWindow* window_ptr;
-};
-
 class ConwayGameOfLife
 {
 public:
-    ConwayGameOfLife(const ConwayGameAttributes& attributes);
+    ConwayGameOfLife(sf::RenderWindow* window_ptr); //default
+    ConwayGameOfLife(sf::RenderWindow* window_ptr, const ConwayCell& cell_attr);
     ConwayGameOfLife(void) = delete;
 
     //Mutators
-    unsigned drawConwayGrid(void);
+    unsigned drawCurrentConwayGeneration(void);
     void generateNextGeneration(void);
     void setCellState_VectorIndex(unsigned x, unsigned y, bool state);
     void setCellState_PixelXY(const sf::Vector2u& pixelXY, bool state);
     void setCellState_PixelXY(unsigned x, unsigned y, bool state);
-    ConwayGameAttributes& getGameAttributes(void);
-
+    void setWindow(sf::RenderWindow* window_ptr);
+    
     //Accesors
-    const ConwayGameAttributes& getGameAttributes(void) const;
 
     //Helpers
     inline bool isValid_VectorIndex(unsigned x, unsigned y) const;
@@ -51,9 +29,14 @@ public:
     //Private Helpers
 private:
     inline void updateCellState_NextGen(unsigned x, unsigned y, unsigned num_adjacent_cells);
+    inline void set_cell_count(void);
 
 private:
-    ConwayGameAttributes attributes;
+    sf::RenderWindow* window_ptr;
+    sf::RectangleShape cell;
+    ConwayCell cell_attr;
+    unsigned x_cell_count;      //number of cells on x axis
+    unsigned y_cell_count;      //number of cells on y axis
     std::vector<std::vector<bool>> current_gen_states;
     std::vector<std::vector<bool>> next_gen_states;
 };
