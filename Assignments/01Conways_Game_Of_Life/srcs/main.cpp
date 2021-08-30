@@ -1,6 +1,7 @@
 #include "ConwayGameOfLife.h"
 #include <iostream>
 
+const unsigned FRAMERATE = 120;
 int main(void)
 {
 
@@ -11,7 +12,7 @@ int main(void)
         sf::Style::Default ^ sf::Style::Resize
     );
 
-    ConwayGameOfLife game(&window, {40, sf::Color::Black, sf::Color::Red, sf::Color::White, 0.1});
+    ConwayGameOfLife game(&window);
 
     //Main game loop
     while (window.isOpen())
@@ -22,9 +23,11 @@ int main(void)
         std::cout << "Input State:\n"
         << "Left click:  Set cells as active!\n"
         << "Right click: Set cells as NOT active\n"
+        << "Press Enter: Set ALL cells as NOT active\n"
         << "HIT SPACE TO RUN!\n"
         << "\n"; //spacer
-        window.setFramerateLimit(120); //make more responsive to input
+
+        window.setFramerateLimit(FRAMERATE);
         while (window.isOpen() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space))
         {
 
@@ -46,18 +49,22 @@ int main(void)
                     static_cast<sf::Vector2u>(sf::Mouse::getPosition(window)),
                     false);
 
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Enter))
+                game.clearGeneration();
+
             window.clear();
             game.drawCurrentConwayGeneration();
             window.display();
         }
-
 
         while (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space)) {}
 
         std::cout << "Running...\n"
         << "HIT SPACE TO STOP RUNNING!\n"
         << "\n"; //spacer
-        window.setFramerateLimit(5); //make animation visable
+
+        //slow down animation to see the generations more clearly
+        window.setFramerateLimit(FRAMERATE/20); //crude, will figute out better way soon enough 
         alive_cells = 1; //make sure to run
         while (window.isOpen() && !sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Space) && alive_cells != 0)
         {

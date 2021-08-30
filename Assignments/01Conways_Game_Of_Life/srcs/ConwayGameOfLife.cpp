@@ -5,65 +5,16 @@
 ConwayGameOfLife::ConwayGameOfLife(sf::RenderWindow* window_ptr) //default
 : window_ptr(window_ptr)
 {
-    //set default values for cell_attr
-    cell_attr.cell_side_length = 20;
-    cell_attr.alive_color = sf::Color::Black;
-    cell_attr.dead_color = sf::Color::White;
-    cell_attr.outline_color = sf::Color::Black;
-    cell_attr.outline_thickness_percentage = 0.05;
-
-    //check that window has a size
-    assert(window_ptr->getSize() != sf::Vector2u(0, 0));
-    set_cell_count(); //set x_cell_count and y_cell_count
-    assert(x_cell_count >= 2 && y_cell_count >= 2); //need at least 2 by 2 grid
-
-    current_gen_states.assign(y_cell_count,
-        std::vector<bool>(x_cell_count, false)
-    );
-    next_gen_states = current_gen_states;
-
-
-    cell.setSize(sf::Vector2f
-        (cell_attr.cell_side_length,
-        cell_attr.cell_side_length)
-    );
-    
-    cell.setFillColor(cell_attr.dead_color);
-    cell.setOutlineColor(cell_attr.outline_color);
-    cell.setOutlineThickness(
-        cell_attr.outline_thickness_percentage
-        *cell_attr.cell_side_length
-    );
+    constructConwayGameOfLife();
 }
 //EOF
 
-ConwayGameOfLife::ConwayGameOfLife(sf::RenderWindow* window_ptr, const ConwayCell& cell_attr)
+ConwayGameOfLife::ConwayGameOfLife(sf::RenderWindow* window_ptr, const ConwayCell_Attributes& cell_attr)
 : window_ptr(window_ptr), cell_attr(cell_attr)
 {
-    //check that window has a size
-    assert(window_ptr->getSize() != sf::Vector2u(0, 0));
-    set_cell_count(); //set x_cell_count and y_cell_count
-    assert(x_cell_count >= 2 && y_cell_count >= 2); //need at least 2 by 2 grid
-
-    current_gen_states.assign(y_cell_count,
-        std::vector<bool>(x_cell_count, false)
-    );
-    next_gen_states = current_gen_states;
-
-
-    cell.setSize(sf::Vector2f
-        (cell_attr.cell_side_length,
-        cell_attr.cell_side_length)
-    );
-    
-    cell.setFillColor(cell_attr.dead_color);
-    cell.setOutlineColor(cell_attr.outline_color);
-    cell.setOutlineThickness(
-        cell_attr.outline_thickness_percentage
-        *cell_attr.cell_side_length
-    );
+    constructConwayGameOfLife();
 }
-
+//EOF
 
 //MUTATORS
 unsigned ConwayGameOfLife::drawCurrentConwayGeneration(void)
@@ -190,6 +141,12 @@ void ConwayGameOfLife::generateNextGeneration(void)
 }
 //EOF
 
+void ConwayGameOfLife::clearGeneration(void)
+{
+    initStateTrackers();
+}
+//EOF
+
 void ConwayGameOfLife::setCellState_VectorIndex(unsigned x, unsigned y, bool state)
 {
     if (isValid_VectorIndex(x, y))
@@ -217,7 +174,7 @@ void ConwayGameOfLife::setWindow(sf::RenderWindow* window_ptr)
     this->window_ptr = window_ptr;
     //check that window has a size
     assert(window_ptr->getSize() != sf::Vector2u(0, 0));
-    set_cell_count(); //set x_cell_count and y_cell_count
+    initCellCount(); //set x_cell_count and y_cell_count
     assert(x_cell_count >= 2 && y_cell_count >= 2); //need at least 2 by 2 grid
 
     current_gen_states.resize(y_cell_count, std::vector<bool>(x_cell_count, false));
@@ -273,7 +230,7 @@ inline void ConwayGameOfLife::updateCellState_NextGen(unsigned x, unsigned y, un
 }
 //EOF
 
-inline void ConwayGameOfLife::set_cell_count(void)
+inline void ConwayGameOfLife::initCellCount(void)
 {
     /*
      *  Math:
@@ -281,7 +238,9 @@ inline void ConwayGameOfLife::set_cell_count(void)
      *  (x_cell_count)*(y_cell_count)*pow(cell_side_length, 2) = (window.x)*(window.y)
      * 
      *  Goal:
-     *  The area of all the cells equals the area provided by the window
+     *  The area of all the cells equals the area provided by the 
+     *  passed in sf::RenderWindow while also keeping the "aspect"
+     *  ratio provided by the window
     */
     y_cell_count =
             std::sqrt(
@@ -292,3 +251,40 @@ inline void ConwayGameOfLife::set_cell_count(void)
             (static_cast<double>(window_ptr->getSize().x) /
             window_ptr->getSize().y) * y_cell_count;
 }
+//EOF
+
+inline void ConwayGameOfLife::initCell(void)
+{
+    cell.setSize(sf::Vector2f
+        (cell_attr.cell_side_length,
+        cell_attr.cell_side_length)
+    );
+    
+    cell.setFillColor(cell_attr.dead_color);
+    cell.setOutlineColor(cell_attr.outline_color);
+    cell.setOutlineThickness(
+        cell_attr.outline_thickness_percentage
+        *cell_attr.cell_side_length
+    );
+}
+//EOF
+
+inline void ConwayGameOfLife::initStateTrackers(void)
+{
+    current_gen_states.assign(y_cell_count,
+        std::vector<bool>(x_cell_count, false)
+    );
+    next_gen_states = current_gen_states;
+}
+//EOF
+
+inline void ConwayGameOfLife::constructConwayGameOfLife(void)
+{
+    //check that window has a size
+    assert(window_ptr->getSize() != sf::Vector2u(0, 0));
+    initCellCount(); //set x_cell_count and y_cell_count
+    assert(x_cell_count >= 2 && y_cell_count >= 2); //need at least 2 by 2 grid
+    initCell();
+    initStateTrackers();
+}
+//EOF
