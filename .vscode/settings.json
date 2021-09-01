@@ -2,9 +2,11 @@
     "cSpell.words": [
         "DNDEBUG",
         "IXXXX",
+        "MYVECTOR",
         "Theight",
         "Twidth",
         "agrid",
-        "sfml"
+        "sfml",
+        "vect"
     ]
 }
