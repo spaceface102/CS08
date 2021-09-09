@@ -14,7 +14,9 @@ void insertionSort(int array[], uint64_t size)
         //overwrite the original value of value at array[mainIndex]
         key = array[mainIndex];
 
-        subIndex = mainIndex - 1; //subIndex maximum value size size - 2
+        //subIndex maximum value: size - 2 since maximum value
+        //of mainIndex = size - 1
+        subIndex = mainIndex - 1;
 
         //in the event that the key is already sorted, then the
         //condition array[subIndex] > key is automatically false
@@ -27,8 +29,9 @@ void insertionSort(int array[], uint64_t size)
         //valid index to insert the key at. What we are doing in
         //this loop is just shifting all the indicies that contain
         //a value greater than the key to the right, in order
-        //to make room for the correct position 
-        for (; subIndex >= 0 && array[subIndex] > key; subIndex--)
+        //to make room for the correct position
+
+        for (;subIndex >= 0 &&array[subIndex] > key; subIndex--)
             array[subIndex + 1] = array[subIndex];
         array[subIndex + 1] = key;
     }

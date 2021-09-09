@@ -23,15 +23,15 @@ EXEC = a.out
 DEPSDIR = deps
 OBJSDIR = build
 HDRSDIR = hdrs
-CC = gcc
-CFLAGS = -ansi -std=c99 -Wall -Wpedantic -I $(HDRSDIR)
-LFLAGS = -ansi -std=c99 -Wall -Wpedantic
+CC = g++
+CFLAGS = -ansi -std=c++11 -Wall -Wpedantic -I $(HDRSDIR)
+LFLAGS = -ansi -std=c++11 -Wall -Wpedantic -lsfml-graphics -lsfml-window -lsfml-system
 #DONT USE ".", use $(shell pwd) to get an 
 #absolute path to current directory
 #else, just the name of the directory in
 #the current directory, such as srcs
 SRCSDIR = srcs
-SRC_FILE_EXTENSION = .c
+SRC_FILE_EXTENSION = .cpp
 #suggest multipling logical cores by 1.25 
 #if hyperthreading system, this is used
 #for making release and debug build, set
@@ -52,7 +52,7 @@ PY_DEPARGS = $@ "$(CC) $< $(CFLAGS) -c -o $(TARGET)"
 PY_DEPMAKER_SCRIPT = make_depfiles.py
 
 
-.PHONY: clean all release debug run
+.PHONY: clean all release debug run leak_test
 
 all: $(EXEC)
 
@@ -62,6 +62,9 @@ $(EXEC): $(OBJS)
 
 run: $(EXEC)
 	./$(EXEC)
+
+leak_test: $(EXEC)
+	valgrind ./$(EXEC)
 
 $(DEPSDIR)/%.d: $(SRCSDIR)/%$(SRC_FILE_EXTENSION) $(PY_DEPMAKER_SCRIPT)
 	@mkdir -p $(DEPSDIR)
@@ -123,7 +126,8 @@ $(PY_DEPMAKER_SCRIPT):
 	@echo "    recipe defines, well, the recipe for the automatically" >> $(PY_DEPMAKER_SCRIPT)
 	@echo "    created rule." >> $(PY_DEPMAKER_SCRIPT)
 	@echo "    '''" >> $(PY_DEPMAKER_SCRIPT)
-	@echo "    new_depfile_name = \".temp_dep_file.d\"" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    new_depfile_name = \".temp_dep_file_\"" >> $(PY_DEPMAKER_SCRIPT)
+	@echo "    new_depfile_name += fname.replace(\"/\", \"\")" >> $(PY_DEPMAKER_SCRIPT)
 	@echo "    base_depfile = open(fname, \"r\")" >> $(PY_DEPMAKER_SCRIPT)
 	@echo "    new_depfile = open(new_depfile_name, \"w\")" >> $(PY_DEPMAKER_SCRIPT)
 	@echo "" >> $(PY_DEPMAKER_SCRIPT)

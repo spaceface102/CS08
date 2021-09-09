@@ -23,15 +23,16 @@ EXEC = a.out
 DEPSDIR = deps
 OBJSDIR = build
 HDRSDIR = hdrs
-CC = gcc
-CFLAGS = -ansi -std=c99 -Wall -Wpedantic -I $(HDRSDIR)
-LFLAGS = -ansi -std=c99 -Wall -Wpedantic
+CC = g++
+SFML_LINK_FLAGS = -lsfml-graphics -lsfml-window -lsfml-system
+CFLAGS = -ansi -std=c++11 -Wall -Wpedantic -I $(HDRSDIR)
+LFLAGS = -ansi -std=c++11 -Wall -Wpedantic $(SFML_LINK_FLAGS)
 #DONT USE ".", use $(shell pwd) to get an 
 #absolute path to current directory
 #else, just the name of the directory in
 #the current directory, such as srcs
 SRCSDIR = srcs
-SRC_FILE_EXTENSION = .c
+SRC_FILE_EXTENSION = .cpp
 #suggest multipling logical cores by 1.25 
 #if hyperthreading system, this is used
 #for making release and debug build, set
@@ -52,7 +53,7 @@ PY_DEPARGS = $@ "$(CC) $< $(CFLAGS) -c -o $(TARGET)"
 PY_DEPMAKER_SCRIPT = make_depfiles.py
 
 
-.PHONY: clean all release debug run
+.PHONY: clean all release debug run leak_test
 
 all: $(EXEC)
 
@@ -62,6 +63,9 @@ $(EXEC): $(OBJS)
 
 run: $(EXEC)
 	./$(EXEC)
+
+leak_test: $(EXEC)
+	valgrind ./$(EXEC)
 
 $(DEPSDIR)/%.d: $(SRCSDIR)/%$(SRC_FILE_EXTENSION) $(PY_DEPMAKER_SCRIPT)
 	@mkdir -p $(DEPSDIR)

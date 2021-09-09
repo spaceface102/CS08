@@ -12,13 +12,13 @@
 typedef void (*sortFunc)(int array[], uint64_t size);
 
 //FUNCTION DECLERATIONS
-bool isSorted(int array[], uint64_t size);
+bool isSorted(const int array[], uint64_t size);
 double timeSortingFunc(sortFunc sortfunc, int array[], uint64_t size);
 
 void testSortFunc(sortFunc sortfunc, const char* sortfuncName,
                     int array[], uint64_t size);
 
-void CompareSortFuncs(sortFunc sortfuncArray[], 
+void CompareSortFuncs(const sortFunc sortfuncArray[], 
                         const char* sortfuncNames[],
                         uint64_t numSortFuncs, 
                         uint64_t maxArraySize,

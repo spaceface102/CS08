@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-bool isSorted(int array[], uint64_t size)
+bool isSorted(const int array[], uint64_t size)
 {
     for (uint64_t k = 1; k < size; k++)
         if (array[k - 1] > array[k])
@@ -57,7 +57,7 @@ void testSortFunc(sortFunc sortfunc, const char* sortfuncName,
     #endif
 }
 
-void CompareSortFuncs(sortFunc sortfuncArray[], 
+void CompareSortFuncs(const sortFunc sortfuncArray[], 
                         const char* sortfuncNames[],
                         uint64_t numSortFuncs, 
                         uint64_t maxArraySize,
