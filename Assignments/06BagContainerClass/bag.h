@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <iostream>
-
 template<typename E>
 class Bag
 {
@@ -12,22 +11,23 @@ public:
     Bag(const Bag<E>& that);
     ~Bag(void);
 
-    Bag<E>& operator = (const Bag<E>& that);
-    void insert(const E& value); //adds item to the array
+    Bag<E>& operator=(const Bag<E>& that);
+    void insert(const E& value);
     bool erase(const E& target); //remove all instances of target
     bool erase_one(const E& target); //remove the first instance of the target
-    Bag<E>& operator +=(const Bag<E>&that);
-    Bag<E>& operator [](uint64_t index);
+    Bag<E>& operator+=(const Bag<E>&that);
+    E& operator[](uint64_t index);
 
-    void count(const E& target) const; //returns the numbers of instances of target
-    void size(void) const; //returns the number of elements stored
-    void capacity(void) const; //returns max size of internal array
-    Bag<E> operator +(const Bag<E>&that) const;
-    const Bag<E>& operator [](uint64_t index) const;
+    uint64_t count(const E& target) const; //returns the numbers of instances of target
+    uint64_t getSize(void) const; //returns the number of elements stored
+    uint64_t getCapacity(void) const; //returns max size of internal array
+    Bag<E> operator+(const Bag<E>& that) const;
+    const E& operator[](uint64_t index) const;
+
 
 private:
-    void setCapacity(uint64_t new_capacity);
-    void doubleCapcity(void);
+    void expand(void);
+    void expand(uint64_t new_capacity);
     inline bool isInArray(const E& value);
     inline uint64_t inArray_RelativeOffset(const E& value);
 
@@ -36,9 +36,9 @@ private:
     E* array;
 };
 
-template<typename E>
-std::ostream& operator <<(std::ostream& out, const Bag<E>& a_bag);
-
 #include "bag.cpp"
+
+template<typename E>
+std::ostream& operator<<(std::ostream& out, const Bag<E>& a_bag);
 
 #endif //BAG_CLASS_H

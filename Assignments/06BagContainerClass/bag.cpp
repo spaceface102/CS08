@@ -1,5 +1,5 @@
-#ifndef BAG_CLASS_IMPLEMENTATION
-#define BAG_CLASS_IMPLEMENTATION
+#ifndef BAG_CLASS_CPP
+#define BAG_CLASS_CPP
 
 #include "bag.h"
 
@@ -13,7 +13,7 @@ template<typename E>
 Bag<E>::Bag(const Bag<E>& that)
 {
     this->size = that.size;
-    this->capacity = that.capacity
+    this->capacity = that.capacity;
     this->array = new E[this->capacity]();
 
     for (uint64_t i = 0; i < that.size; i++)
@@ -30,7 +30,7 @@ Bag<E>::~Bag(void)
 //EOF
 
 template<typename E>
-Bag<E>& Bag<E>::operator =(const Bag<E>& that)
+Bag<E>& Bag<E>::operator=(const Bag<E>& that)
 {
     if (this == &that)
         return *this;
@@ -75,7 +75,7 @@ void Bag<E>::insert(const E& value)
         if (valueIs_IN_InternalArray)
             valueRelativeOffset_InArray = inArray_RelativeOffset(value);
         //use a relative offset to avoid copying
-        doubleCapcity();
+        expand();
     }
 
     array[size++] = (valueIs_IN_InternalArray) ? array[valueRelativeOffset_InArray] : value;
@@ -125,9 +125,89 @@ bool Bag<E>::erase_one(const E& target)
     size -= 1;
     return true;
 }
+//EOF
 
 template<typename E>
-void Bag<E>::setCapacity(uint64_t new_capacity)
+Bag<E>& Bag<E>::operator+=(const Bag<E>& that)
+{
+    if (this->size + that.size <= this->capacity)
+    {
+        for (uint64_t i = 0; i < that.size; i++)
+            array[i + this->size] = that.array[i];
+        this->size += that.size;
+    }
+    else //not enough capacity
+    {
+        this->capacity = this->size + that.size;
+        delete [] array;
+        array = new E[this->capacity]();
+
+        for (uint64_t i = 0; i < that.size; i++)
+            array[i + this->size] = that.array[i];
+        this->size += that.size;
+    }
+}
+//EOF
+
+template<typename E>
+E& Bag<E>::operator[](uint64_t index)
+{
+    return array[index];
+}
+//EOF
+
+template<typename E>
+uint64_t Bag<E>::count(const E& target) const
+{
+    uint64_t counter = 0;
+    for (uint64_t i = 0; i < size; i++)
+        if (array[i] == target)
+            counter++;
+    return counter;
+}
+//EOF
+
+template<typename E>
+uint64_t Bag<E>::getSize(void) const
+{
+    return this->size;
+}
+//EOF
+
+
+template<typename E>
+uint64_t Bag<E>::getCapacity(void) const
+{
+    return this->capacity;
+}
+//EOF
+
+template<typename E>
+Bag<E> Bag<E>::operator+(const Bag<E>& that) const
+{
+    Bag<E> output;
+
+    output.expand(this->size + that.size);
+    output.size = this->size + that.size;
+
+    for (uint64_t i = 0; i < this->size; i++)
+        output.array[i] = this->array[i];
+    for (uint64_t i = 0; i < that.size; i++)
+        output.array[i + this->size] = that.array[i];
+
+    return output;
+}
+//EOF
+
+template<typename E>
+const E& Bag<E>::operator[](uint64_t index) const
+{
+    return array[index];
+}
+//EOF
+
+template<typename E>
+void Bag<E>::expand(uint64_t new_capacity)
 {
     E* temp_array = new E[new_capacity]();
 
@@ -141,12 +221,12 @@ void Bag<E>::setCapacity(uint64_t new_capacity)
 //EOF
 
 template<typename E>
-void Bag<E>::doubleCapcity(void)
+void Bag<E>::expand(void)
 {
     if (capacity == 0)
-        setCapacity(1);
+        expand(1);
     else
-        setCapacity(capacity*2);
+        expand(capacity*2);
 }
 //EOF
 
@@ -158,19 +238,22 @@ inline bool Bag<E>::isInArray(const E& value)
     //addresses that have already been populated
     return (&value >= array) && (&value < (array + size));
 }
+//EOF
 
 template<typename E>
 inline uint64_t Bag<E>::inArray_RelativeOffset(const E& value)
 {
     return (&value) - array;
 }
+//EOF
 
 template<typename E>
-std::ostream& operator <<(std::ostream& out, const Bag<E>& a_bag)
+std::ostream& operator<<(std::ostream& out, const Bag<E>& a_bag)
 {
-    for (int i = 0; i < a_bag.size(); i++)
-        out << a_bag[i];
+    for (uint64_t i = 0; i < a_bag.getSize(); i++)
+        out << a_bag[i] << " ";
     return out;
 }
+//EOF
 
-#endif //BAG_CLASS_IMPLEMENTATION
+#endif //BAG_CLASS_CPP
