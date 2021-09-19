@@ -18,7 +18,7 @@ bool Term::operator==(const Term& that) const
 
 bool Term::operator>(const Term& that) const
 {
-    return 
+    return
         (exponent > that.exponent) ||
         ((exponent == that.exponent) && (coefficient > that.coefficient));
 }

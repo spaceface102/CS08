@@ -52,13 +52,24 @@ Term& Polynomial::getTerm(uint64_t term_number) noexcept(false)
     {return internal_polynomial.at(term_number);}
 //EOF
 
-const Polynomial& Polynomial::sort(void) noexcept
+const Polynomial& Polynomial::simplify(void) noexcept
 {
-    std::sort(
-        internal_polynomial.begin(),
-        internal_polynomial.end(),
-        [](const Term& lhs, const Term& rhs) -> bool {return lhs > rhs;}
+    this->sort();
+    this->mergeLikeTerms();
+
+    return *this;
+}
+
+Polynomial& Polynomial::operator+=(const Polynomial& that) noexcept
+{
+    internal_polynomial.reserve(
+        internal_polynomial.size() + that.internal_polynomial.size()
     );
+
+    for (const Term& term : that.internal_polynomial)
+        internal_polynomial.push_back(term);
+
+    this->simplify();
     return *this;
 }
 
@@ -84,6 +95,58 @@ double Polynomial::operator()(double value) const noexcept
     {return this->evaluate(value);}
 //EOF
 
+Polynomial Polynomial::operator+(const Polynomial& that) const noexcept
+{
+    Polynomial output_poly;
+
+    output_poly.internal_polynomial.reserve(
+        internal_polynomial.size() + that.internal_polynomial.size()
+    );
+
+    for (const Term& term : internal_polynomial)
+        output_poly.internal_polynomial.push_back(term);
+
+    for (const Term& term : that.internal_polynomial)
+        output_poly.internal_polynomial.push_back(term);
+
+    output_poly.simplify();
+    return output_poly;
+}
+//EOF
+
+void Polynomial::sort(void) noexcept
+{
+    std::sort(
+        internal_polynomial.begin(),
+        internal_polynomial.end(),
+        [](const Term& lhs, const Term& rhs) -> bool {return lhs > rhs;}
+    );
+}
+//EOF
+
+void Polynomial::mergeLikeTerms(void) noexcept
+{   //this->sort() must have been called before calling this function
+    uint64_t numberOfSurvivingTerms = 0;
+
+    for (uint64_t i = 0; i < internal_polynomial.size(); numberOfSurvivingTerms++)
+    {
+        Term& surviving_term = internal_polynomial[numberOfSurvivingTerms];
+
+        surviving_term = internal_polynomial[i]; //shift actual term to the space occupied by surving_term
+        for
+        (
+            i += 1; //go to the term after surviving term
+            i < internal_polynomial.size()
+            && internal_polynomial[i].exponent == surviving_term.exponent;
+            i++ //only place where "i" is incremented
+        )
+            surviving_term.coefficient += internal_polynomial[i].coefficient;
+    }
+
+    internal_polynomial.resize(numberOfSurvivingTerms);
+}
+//EOF
+
 std::ostream& operator<<(std::ostream& out, const Polynomial& poly) noexcept
 {
     if (poly.getNumberOfTerms() > 0)
@@ -95,3 +158,4 @@ std::ostream& operator<<(std::ostream& out, const Polynomial& poly) noexcept
 
     return out;
 }
+//EOF
