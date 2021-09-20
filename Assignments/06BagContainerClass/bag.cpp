@@ -87,65 +87,61 @@ void Bag<E>::insert(const E& value) noexcept
 template<typename E>
 bool Bag<E>::erase(const E& target) noexcept
 {
-    //there are not going to be any targets in a bag of size 0!
     if (size == 0)
         return false;
 
-    //handle the event in which the passed in target is
-    //a reference to an element in the internal array
-    //and therefore would be over-written when shiting 
-    //values to the left
     if (addressIsInArray(target))
     {
+        //target is a reference to an instance of E, if the
+        //reference is internal (it a reference to an element
+        //in the bag) then make a copy to make sure not to modify
+        //target accidentally with array[i] modifications
         E copyOfTarget = target;
         return erase(copyOfTarget);
     }
 
-    uint64_t shift_left_amount = 0; //goes up every time the target
-                                    //is encountered, and by default
-                                    //no targets have been found
-    uint64_t index_of_first_target = 0; //delay copying:
-                                        //array[i - shift_left_amount] = array[i]
-                                        //until necessary
+    uint64_t number_of_targets = 0;
+    uint64_t index_of_first_target = 0;
 
-    //find the first target
+    //find the first target's index
     while (index_of_first_target < size && array[index_of_first_target] != target)
         index_of_first_target++;
 
-    //there is no target to speak of in the whole bag
+    //no target to speak of, do nothing and report target as not being in bag
     if (index_of_first_target == size)
         return false;
-    else //there is definitely an instance of target in the bag and not at the end
-        shift_left_amount++;
+    else
+        number_of_targets++;
 
-    for (uint64_t i = index_of_first_target; i < size - 1; i++)
+    //takes care of successive targets at the END of the bag
+    //by decreasing the "size" var to virtually cut off access
+    //don't need to increment number_of_targets since in
+    //essence after the end of this loop, the bag will not
+    //even be able to access those targets due to size--
+    for (
+        uint64_t i = size - 1;
+        i > index_of_first_target && array[i] == target;
+        i--, size--
+    )
+        {}
+
+    //start looking at the indicies right after the first
+    //target and shift the array to the left
+    for (uint64_t i = index_of_first_target + 1; i < size; i++)
     {
-        //point to the next value that is the not equal to the target, and
-        //count the amount of successive values that equal to the target
-        //i < size - 1 ensures that i at max will be eq to size - 1, need this
-        //since max index is size - 1 NOT size, and will be accesing index i (array[i])
-        while (i < size - 2 && array[i] == target) 
-            {i++; shift_left_amount++;} //notice that "i" is also being incremeneted
+        //note that even though there is a nested loop
+        //the loop itself is incrementing the same "i";
+        //this is still linear!!!
+        while (i < size - 1 && array[i] == target) 
+            {i++; number_of_targets++;}
 
-        array[i - shift_left_amount] = array[i];
+        array[i - number_of_targets] = array[i];
     }
 
-    //used to catch in the event that the last element is
-    //equal to the target
-    if (array[size - 1] == target)
-        size -= 1;
-
-    //remember, shift_left_amount also tells us
-    //how many targets we encountered since in the
-    //while loop we incremented shift_left_amount
-    //every single time that array[i] == target
-    //therefore we have shift_left_amount less values
-    size -= shift_left_amount;
-
-    //decreasing capacity of bag, free memory if necessary
+    size -= number_of_targets;
     shrinkConditionally();
 
-    return (bool)shift_left_amount; //if 0 then false, else true
+    return true; //there were targets in the bag
 }
 //EOF
 
@@ -177,6 +173,12 @@ bool Bag<E>::erase_one(const E& target) noexcept
 
 template<typename E>
 void Bag<E>::clear(void) noexcept
+{
+    size = 0;
+}
+
+template<typename E>
+void Bag<E>::full_clear(void) noexcept
 {
     delete [] array;
     array = nullptr;

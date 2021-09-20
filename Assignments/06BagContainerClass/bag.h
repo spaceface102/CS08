@@ -16,6 +16,7 @@ public:
     bool erase(const E& target) noexcept; //remove all instances of target
     bool erase_one(const E& target) noexcept; //remove the first instance of the target
     void clear(void) noexcept;
+    void full_clear(void) noexcept;
     Bag<E>& operator+=(const Bag<E>&that) noexcept;
     E& operator[](uint64_t index) noexcept(false);
 
