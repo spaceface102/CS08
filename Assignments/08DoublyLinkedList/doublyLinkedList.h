@@ -29,10 +29,17 @@ public:
     /*************
     ** MUTATORS **
     *************/
-    void push_front(int value);
+    void push_front(const E& value);
     void pop_front(void);
     void push_back(const E& value);
+    void operator+=(const E& value);    //same as push_back
     void pop_back(void);
+
+    //nodeIndex = 0 means head
+    //nodeIndex = list.size() - 1 OR numberOfNodes - 1 means tail
+    void insert_before(std::size_t nodeIndex, const E& value);
+    void insert_after(std::size_t nodeIndex, const E& value);
+
     bool remove_all_targets(const E& target);
     bool remove_first_target_instance(const E& target);
     void clear(void);

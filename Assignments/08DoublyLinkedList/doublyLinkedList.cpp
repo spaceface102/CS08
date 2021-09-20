@@ -3,6 +3,7 @@
 
 #include "doublyLinkedList.h"
 #include <iostream>
+#include <cassert>
 
 /****************************************************************
  * 
@@ -204,16 +205,13 @@ bool DoublyLinkedList<E>::isInList(const E& target) const
 
     current = head;
     targetIsInList = false;
-    while (current != tail && !targetIsInList)
+    while (current != nullptr && !targetIsInList)
     {
         if (current->data == target)
             targetIsInList = true;
         current = current->next;
     }
 
-    if (tail != nullptr && tail->data == target)
-        targetIsInList = true;
-    
     return targetIsInList;
 }
 //EOF
@@ -233,7 +231,7 @@ bool DoublyLinkedList<E>::isInList(const E& target) const
  *      node is added.
 ****************************************************************/
 template<typename E>
-void DoublyLinkedList<E>::push_front(int value)
+void DoublyLinkedList<E>::push_front(const E& value)
 {
     if (head == nullptr)    //empty list
         head = tail = new Node<E>(value);
@@ -277,6 +275,12 @@ void DoublyLinkedList<E>::push_back(const E& value)
     numberOfNodes++;
 }
 //EOF
+
+template<typename E>
+void DoublyLinkedList<E>::operator+=(const E& value)
+{
+    this->push_back(value);
+}
 
 /****************************************************************
  * 
@@ -348,6 +352,44 @@ void DoublyLinkedList<E>::pop_back(void)
 }
 //EOF
 
+//nodeIndex = 0 means head
+//nodeIndex = list.size() - 1 OR numberOfNodes - 1 means tail
+template<typename E>
+void DoublyLinkedList<E>::insert_before(std::size_t nodeIndex, const E& value)
+{
+    assert("There are no nodes to even insert before!(Empty list)" && numberOfNodes > 0);
+    assert("Use the push_front() method instead to set new head" && nodeIndex > 0);
+    assert("Use the push_back() method to set new tail" && nodeIndex < numberOfNodes);
+
+    std::size_t currentNodeIndex = 0;
+    Node<E>* current = head;
+
+    while (currentNodeIndex < nodeIndex - 1)
+    {
+        current = current->next;
+        currentNodeIndex++;
+    }
+    
+    //currentNodeIndex = nodeIndex - 1, aka the node before hand
+    Node<E>* temp_next = current->next;
+    current->next = new Node<E>(value);
+    current->next->prev = current;
+    current->next->next = temp_next;
+    temp_next->prev = current->next;
+
+    numberOfNodes++;
+}
+//EOF
+
+//nodeIndex = 0 means head
+//nodeIndex = list.size() - 1 mean tail
+template<typename E>
+void DoublyLinkedList<E>::insert_after(std::size_t nodeIndex, const E& value)
+{
+    assert("There are no nodes to even insert after!(Empty list)" && numberOfNodes > 0);
+    assert("Use the push_back() method to set new tail" && nodeIndex < numberOfNodes - 1);
+    this->insert_before(nodeIndex + 1, value);
+}
 
 /****************************************************************
  * 
@@ -491,6 +533,8 @@ DoublyLinkedList<E>& DoublyLinkedList<E>::operator=(const DoublyLinkedList<E>& t
     Node<E> *current;       //PROC - track node from calling obj.
     Node<E> *newTail;       //PROC - in the event calling obj.'s list is bigger
 
+    this->numberOfNodes = that.numberOfNodes; //will always happen no matter what
+
     //avoid case were same object is on both
     //sides of the "=" operator.
     if (this == &that)
@@ -536,36 +580,34 @@ DoublyLinkedList<E>& DoublyLinkedList<E>::operator=(const DoublyLinkedList<E>& t
         current_that = current_that->next;
     }
 
-    //each list must have NOT been the same size.
-    if (current != current_that)
+    //calling object's list is smaller, need to expand
+    if (this->numberOfNodes < that.numberOfNodes)
     {
-        //calling object's list is smaller, need to expand
-        if (current == nullptr)
+        while (current_that != nullptr)
         {
-            while (current_that != nullptr)
-            {
-                tail->next = new Node<E>(current_that->data);
-                tail->next->prev = tail;
-                tail = tail->next;
-                current_that = current_that->next;
-            }
+            tail->next = new Node<E>(current_that->data);
+            tail->next->prev = tail;
+            tail = tail->next;
+            current_that = current_that->next;
         }
-        else //current_that must be nullptr
+    }
+    //need to cut off some fat
+    else if (this->numberOfNodes > that.numberOfNodes)
+    {
+        //since we are assured by now the calling object has at
+        //least two nodes, and the passed in linked list "that"
+        //has at least one node, 
+        //current at most is pointing to the same memory as tail.
+        //current->prev would therefore be head at most.
+        newTail = current->prev;
+        while (current != tail)
         {
-            //since we are assured by now the calling object has at
-            //least two nodes, and the passed in linked list "that"
-            //has at least one node, current at most is eq. to tail.
-            //current->prev would therefore be head at most.
-            newTail = current->prev;
-            while (current != tail)
-            {
-                current = current->next;
-                delete current->prev;
-            }
-            delete tail;
-            tail = newTail;
-            tail->next = nullptr;
+            current = current->next;
+            delete current->prev;
         }
+        delete tail;
+        tail = newTail;
+        tail->next = nullptr;
     }
     //else both list were of the exact same size.
 
