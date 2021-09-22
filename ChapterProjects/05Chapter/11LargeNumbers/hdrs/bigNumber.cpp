@@ -12,6 +12,18 @@ BigNumber<Tbase>::BigNumber(void)
 {}
 
 template<std::int64_t Tbase>
+BigNumber<Tbase>::BigNumber(int64_t normal_number)
+{
+    isNegative = (normal_number < 0);
+    while (normal_number > 0)
+    {
+        number_list.push_front(normal_number % Tbase);
+        normal_number /= Tbase;
+    }
+}
+//EOF
+
+template<std::int64_t Tbase>
 BigNumber<Tbase>::BigNumber(const std::initializer_list<std::int64_t>& digits)
     : isNegative(false)
 {
@@ -219,6 +231,9 @@ BigNumber<Tbase> BigNumber<Tbase>::operator-(const BigNumber& that) const
         return result;
     }
 
+    //the if statement also ensures that
+    //*this will be greater than or equal to that for the
+    //rest of the function
     if (*this < that)
     {
         //this assuming *this and that are both positive
@@ -232,7 +247,8 @@ BigNumber<Tbase> BigNumber<Tbase>::operator-(const BigNumber& that) const
     std::list<int64_t>::const_reverse_iterator thatDigit = that.number_list.rbegin();
     uint64_t internal_result;
     bool borrow = false;
-    for (; thisDigit != this->number_list.rend() && thatDigit != that.number_list.rend(); ++thisDigit, ++thatDigit)
+
+    for (; thatDigit != that.number_list.rend(); ++thisDigit, ++thatDigit)
     {
         if (*thisDigit - borrow < *thatDigit)
         {
@@ -261,11 +277,12 @@ BigNumber<Tbase> BigNumber<Tbase>::operator-(const BigNumber& that) const
             borrow = false;
         }
 
-        if (internal_result == 0)
-            break;
-
         number_list.push_front(internal_result);
     }
+
+    //ensure that there are no leading zeros!
+    while (number_list.front() == 0)
+        number_list.pop_front();
 
     result.number_list = std::move(number_list);
     return result;

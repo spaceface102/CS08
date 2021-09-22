@@ -12,6 +12,7 @@ static_assert(Tbase > 1, "Base must be larger than 1!!!!");
 
 public:
     BigNumber(void);
+    BigNumber(int64_t normal_number);
     BigNumber(const std::initializer_list<int64_t>& digits);
     BigNumber(const BigNumber& that) = default;
     BigNumber(BigNumber&& that);
