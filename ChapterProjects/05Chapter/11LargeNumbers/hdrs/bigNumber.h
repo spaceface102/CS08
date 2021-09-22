@@ -59,6 +59,7 @@ public:
 
 private:
     std::list<int64_t> number_list;
+    bool isNegative;
 };
 
 #include "bigNumber.cpp"

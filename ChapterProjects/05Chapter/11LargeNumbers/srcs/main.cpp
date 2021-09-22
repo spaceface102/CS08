@@ -3,10 +3,30 @@
 
 int main(void)
 {
-    BigNumber<16> test = {15, 15};
-    BigNumber<16> test2 = {9};
+    typedef BigNumber<10> Base10;
 
-    std::cout << (test & test2) << "\n";
-    printf("%x\n", (0xFF & 0x9));
+    Base10 x{1, 0, 2, 3};
+    Base10 y{9, 9};
+    
+    std::cout << x + y << "\n";
+    std::cout << y + x << "\n";
+    std::cout << x - y << "\n";
+    std::cout << y - x << "\n";
+    std::cout << x*y << "\n";
+    std::cout << y*x << "\n";
+    std::cout << y/x << "\n";
+    std::cout << x/y << "\n";
+    std::cout << x%y << "\n";
+    std::cout << y%x << "\n";
+    std::cout << (x << Base10{1}) << "\n";
+    std::cout << (x >> Base10{1}) << "\n";
+    std::cout << (1023 >> 1) << "\n";
+
+    std::cout << (x > y) << "\n";    
+    std::cout << (x >= y) << "\n";    
+    std::cout << (x <= y) << "\n";    
+    std::cout << (x < y) << "\n";    
+    std::cout << (x == y) << "\n";    
+    std::cout << (x != y) << "\n";    
     return 0;
 }
