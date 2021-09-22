@@ -299,6 +299,9 @@ BigNumber<Tbase> BigNumber<Tbase>::operator*(const BigNumber& that) const
     const BigNumber<Tbase>* incrementor;
     const BigNumber<Tbase>* countUpTo;
 
+    if (*this == BigNumber<Tbase>{0} || that == BigNumber<Tbase>{0})
+        return BigNumber<Tbase>{0};
+
     if (*this > that)
     {
         incrementor = this;
