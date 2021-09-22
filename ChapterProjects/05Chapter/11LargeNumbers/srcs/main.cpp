@@ -35,9 +35,9 @@ int main(void)
     }
 
     {
-        BigNumber<1000> x{1, 0, 2, 3};
+        BigNumber<1000> x = {24, 5};
         BigNumber<1000> y = 99;
-        
+
         std::cout << "x = " << x << "\n";
         std::cout << "y = " << y << "\n";
         std::cout << x + y << "\n";

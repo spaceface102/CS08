@@ -527,12 +527,16 @@ std::ostream& operator<<(std::ostream& out, const BigNumber<base>& big_number)
 {
     static const std::int64_t NUMBER_OF_DIGITS_MAX = std::ceil(std::log10(base));
 
+    auto digit = big_number.number_list.begin();
+    
     out << ((big_number.isNegative) ? "-" : "");
-    for (int64_t node : big_number.number_list)
+    out << *digit++;
+
+    for (; digit != big_number.number_list.end(); ++digit)
         out 
-        << std::setw(NUMBER_OF_DIGITS_MAX) 
-        << std::setfill('0') 
-        << node;
+        << std::setw(NUMBER_OF_DIGITS_MAX)
+        << std::setfill('0')
+        << *digit;
 
     return out;
 }
