@@ -1,0 +1,5 @@
+#!/usr/bin/bash
+MAKEFILE_DIR=./../..
+cp $MAKEFILE_DIR/Makefile .
+make $1 $2 SRCSDIR=$(pwd) HDRSDIR=$(pwd) EXTRA_LFLAGS=""
+rm -f Makefile

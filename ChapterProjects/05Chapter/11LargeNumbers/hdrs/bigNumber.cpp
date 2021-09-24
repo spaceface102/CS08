@@ -237,7 +237,7 @@ BigNumber<Tbase> BigNumber<Tbase>::operator-(const BigNumber& that) const
     if (*this < that)
     {
         //this assuming *this and that are both positive
-        BigNumber<Tbase> result = that.operator-(*this);
+        result = that.operator-(*this);
         result.isNegative = true;
         return result;
     }

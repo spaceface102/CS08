@@ -45,9 +45,9 @@ public:
     void clear(void);
 
 private:
-    std::size_t numberOfNodes;
     Node<E>* head;
     Node<E>* tail;
+    std::size_t numberOfNodes;
 };
 
 template<typename E>

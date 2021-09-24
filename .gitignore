@@ -6,3 +6,4 @@
 *.tar
 *.zip
 *.mp4
+dont_remove_make_depfiles.py
