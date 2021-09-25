@@ -352,6 +352,19 @@ void DoublyLinkedList<E>::pop_back(void)
 }
 //EOF
 
+
+template<typename E>
+DoublyLinkedListIterator<E> DoublyLinkedList<E>::begin(void)
+{
+    return DoublyLinkedListIterator<E>{head};
+}
+
+template<typename E>
+DoublyLinkedListIterator<E> DoublyLinkedList<E>::end(void)
+{
+    return DoublyLinkedListIterator<E>{nullptr};
+}
+
 //nodeIndex = 0 means head
 //nodeIndex = list.size() - 1 OR numberOfNodes - 1 means tail
 template<typename E>
