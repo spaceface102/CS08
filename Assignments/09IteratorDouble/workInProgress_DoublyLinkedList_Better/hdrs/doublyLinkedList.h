@@ -2,7 +2,6 @@
 #define DOUBLY_LINKED_LIST_CLASS_H
 
 #include "Node.h"
-#include "edgeNode.h"
 #include "doublyLinkedListIterator.h"
 #include <iostream>
 
@@ -28,7 +27,6 @@ public:
     bool isEmpty(void) const;
     bool isInList(const E& target) const;
 
-
     /*************
     ** MUTATORS **
     *************/
@@ -52,16 +50,7 @@ public:
 private:
     Node<E>* head;
     Node<E>* tail;
-    std::size_t numberOfNodes; //tracks the number of heap allocated nodes
-    EdgeNode<E> endNode;
-    EdgeNode<E> beginNode;
-
-    void setTailNext(std::size_t currentNumberOfNodes);
-    void setHeadPrev(std::size_t currentNumberOfNodes);
-    void updateEndNode_Interface_Node(std::size_t currentNumberOfNodes);
-    void updateBeginNode_Interface_Node(std::size_t currentNumberOfNodes);
-    Node<E>* getTrueEndNode(std::size_t currentNumberOfNodes);
-    Node<E>* getTrueBeginNode(std::size_t currentNumberOfNodes);
+    std::size_t numberOfNodes;
 };
 
 template<typename E>

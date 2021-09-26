@@ -22,14 +22,8 @@
 ****************************************************************/
 template<typename E>
 DoublyLinkedList<E>::DoublyLinkedList(void)
-    : head(nullptr), tail(nullptr), numberOfNodes(0),
-      endNode(head, tail), beginNode(head, tail)
-{
-    setTailNext(numberOfNodes);
-    setHeadPrev(numberOfNodes);
-    updateBeginNode_Interface_Node(numberOfNodes);
-    updateEndNode_Interface_Node(numberOfNodes);
-}
+    : head(nullptr), tail(nullptr), numberOfNodes(0)
+{}
 //EOF
 
 /****************************************************************
@@ -56,15 +50,11 @@ DoublyLinkedList<E>::DoublyLinkedList(void)
 ****************************************************************/
 template<typename E>
 DoublyLinkedList<E>::DoublyLinkedList(const DoublyLinkedList& that)
-    : endNode(head, tail), beginNode(head, tail)
 {
     Node<E> *current_that;  //PROC - track node from "that"
 
-    if (that.numberOfNodes == 0)
-    {
-        head = tail = nullptr; 
-        numberOfNodes = 0;
-    }
+    if (that.head == nullptr)
+        {head = tail = nullptr; numberOfNodes = 0;}
     else
     {
         current_that = that.head;
@@ -72,7 +62,7 @@ DoublyLinkedList<E>::DoublyLinkedList(const DoublyLinkedList& that)
         numberOfNodes = that.numberOfNodes;
 
         current_that = current_that->next;
-        while (current_that != &(that.endNode.interface_node))
+        while (current_that != nullptr)
         {
             tail->next = new Node<E>(current_that->data);
             tail->next->prev = tail;
@@ -80,11 +70,6 @@ DoublyLinkedList<E>::DoublyLinkedList(const DoublyLinkedList& that)
             current_that = current_that->next;
         }
     }
-
-    setTailNext(numberOfNodes);
-    setHeadPrev(numberOfNodes);
-    updateBeginNode_Interface_Node(numberOfNodes);
-    updateEndNode_Interface_Node(numberOfNodes);
 }
 //EOF
 
@@ -130,21 +115,18 @@ void DoublyLinkedList<E>::display(std::ostream& out, bool forward) const
 {
     Node<E> *current;       //PROC - keep track of current node in list
     Node<E> *terminating;   //PROC - the final node printed
-    Node<E> *trueTerminate; //PROC - the actual termination node in list
     Node<E>* (*direction)(Node<E>* node);
 
     if (forward)
     {
         current = head;
         terminating = tail;
-        trueTerminate = getTrueEndNode(numberOfNodes);
         direction = [](Node<E>* node) -> Node<E>* {return node->next;};
     }
     else
     {
         current = tail;
         terminating = head;
-        getTrueBeginNode(numberOfNodes);
         direction = [](Node<E>* node) -> Node<E>* {return node->prev;};
     }
 
@@ -153,7 +135,7 @@ void DoublyLinkedList<E>::display(std::ostream& out, bool forward) const
         out << current->data << " ";
         current = direction(current);
     }
-    if (terminating != trueTerminate)
+    if (terminating != nullptr)
         out << terminating->data;
 }
 //EOF
@@ -176,7 +158,7 @@ void DoublyLinkedList<E>::display(std::ostream& out, bool forward) const
 template<typename E>
 const E& DoublyLinkedList<E>::front(void) const
 {
-    return beginNode.interface_node.data;
+    return head->data;
 }
 //EOF
 
@@ -197,7 +179,7 @@ const E& DoublyLinkedList<E>::front(void) const
 template<typename E>
 const E& DoublyLinkedList<E>::back(void) const
 {
-    return endNode.interface_node.data;
+    return tail->data;
 }
 //EOF
 
@@ -223,9 +205,10 @@ bool DoublyLinkedList<E>::isInList(const E& target) const
 
     current = head;
     targetIsInList = false;
-    while (current != getTrueEndNode(numberOfNodes) && !targetIsInList)
+    while (current != nullptr && !targetIsInList)
     {
-        targetIsInList = (current->data == target);
+        if (current->data == target)
+            targetIsInList = true;
         current = current->next;
     }
 
@@ -250,11 +233,8 @@ bool DoublyLinkedList<E>::isInList(const E& target) const
 template<typename E>
 void DoublyLinkedList<E>::push_front(const E& value)
 {
-    if (numberOfNodes == 0)    //empty list
-    {
+    if (head == nullptr)    //empty list
         head = tail = new Node<E>(value);
-        setTailNext(numberOfNodes + 1);
-    }
     else
     {
         head->prev = new Node<E>(value);
@@ -263,7 +243,6 @@ void DoublyLinkedList<E>::push_front(const E& value)
     }
 
     numberOfNodes++;
-    setHeadPrev(numberOfNodes);
 }
 //EOF
 
@@ -284,11 +263,8 @@ void DoublyLinkedList<E>::push_front(const E& value)
 template<typename E>
 void DoublyLinkedList<E>::push_back(const E& value)
 {
-    if (numberOfNodes == 0)    //empty list
-    {
+    if (head == nullptr)    //empty list
         head = tail = new Node<E>(value);
-        setHeadPrev(numberOfNodes + 1);
-    }
     else
     {
         tail->next = new Node<E>(value);
@@ -297,7 +273,6 @@ void DoublyLinkedList<E>::push_back(const E& value)
     }
 
     numberOfNodes++;
-    setTailNext(numberOfNodes);
 }
 //EOF
 
@@ -330,13 +305,12 @@ void DoublyLinkedList<E>::pop_front(void)
     {
         delete head;
         head = tail = nullptr;
-        //don't setHeadPrev() since head is nullptr
     }
     else
     {
         head = head->next;
         delete head->prev;
-        setHeadPrev(numberOfNodes - 1);
+        head->prev = nullptr;
     }
 
     numberOfNodes--;
@@ -366,23 +340,30 @@ void DoublyLinkedList<E>::pop_back(void)
     {
         delete tail;
         head = tail = nullptr;
-        //don't setTailNext() since tail is nullptr
     }
     else
     {
         tail = tail->prev;
         delete tail->next;
         tail->next = nullptr;
-        setTailNext(numberOfNodes - 1);
     }
 
     numberOfNodes--;
 }
 //EOF
 
+
 template<typename E>
 DoublyLinkedListIterator<E> DoublyLinkedList<E>::begin(void)
-    {return DoublyLinkedList<E>{&endNode};}
+{
+    return DoublyLinkedListIterator<E>{head};
+}
+
+template<typename E>
+DoublyLinkedListIterator<E> DoublyLinkedList<E>::end(void)
+{
+    return DoublyLinkedListIterator<E>{nullptr};
+}
 
 //nodeIndex = 0 means head
 //nodeIndex = list.size() - 1 OR numberOfNodes - 1 means tail
@@ -470,12 +451,11 @@ bool DoublyLinkedList<E>::remove_all_targets(const E& value)
 
     if (tail == head)
     {
-        if (numberOfNodes != 0 && tail->data == value)
+        if (tail != nullptr && tail->data == value)
         {   //single node with specified value
             removedValue = true;
             delete tail;
             head = tail = nullptr;
-            numberOfNodes--;
         }
     }
     else if (tail->data == value) //linked list at least has two nodes.
@@ -483,8 +463,7 @@ bool DoublyLinkedList<E>::remove_all_targets(const E& value)
         removedValue = true;
         tail = tail->prev;
         delete tail->next;
-        numberOfNodes--;
-        setTailNext(numberOfNodes);
+        tail->next = nullptr;
     }
 
     return removedValue;
@@ -522,12 +501,11 @@ bool DoublyLinkedList<E>::remove_first_target_instance(const E& value)
 
     if (tail == head)
     {
-        if (numberOfNodes != 0 && tail->data == value)
+        if (tail != nullptr && tail->data == value)
         {   //single node with specified value
             removedValue = true;
             delete tail;
             head = tail = nullptr;
-            numberOfNodes--;
         }
     }
     else if (tail->data == value) //linked list at least has two nodes.
@@ -535,8 +513,7 @@ bool DoublyLinkedList<E>::remove_first_target_instance(const E& value)
         removedValue = true;
         tail = tail->prev;
         delete tail->next;
-        numberOfNodes--;
-        setTailNext(numberOfNodes);
+        tail->next = nullptr;
     }
 
     return removedValue;
@@ -569,8 +546,6 @@ DoublyLinkedList<E>& DoublyLinkedList<E>::operator=(const DoublyLinkedList<E>& t
     Node<E> *current;       //PROC - track node from calling obj.
     Node<E> *newTail;       //PROC - in the event calling obj.'s list is bigger
 
-    this->numberOfNodes = that.numberOfNodes; //will always happen no matter what
-
     //avoid case were same object is on both
     //sides of the "=" operator.
     if (this == &that)
@@ -587,24 +562,23 @@ DoublyLinkedList<E>& DoublyLinkedList<E>::operator=(const DoublyLinkedList<E>& t
     //and "that" also at least has one node
     if (head == tail)
     {
+
         current_that = that.head;
-        if (head == nullptr) //empty list
-        {
+        if (head == nullptr)
             head = tail = new Node<E>(current_that->data);
-            setHeadPrev(numberOfNodes);
-            setTailNext(numberOfNodes);
-        }
         else
             head->data = current_that->data;
         
         current_that = current_that->next;
-        while (current_that != getTrueEndNode())
+        while (current_that != nullptr)
         {
             tail->next = new Node<E>(current_that->data);
             tail->next->prev = tail;
             tail = tail->next;
             current_that = current_that->next;
         }
+    
+        this->numberOfNodes = that.numberOfNodes;
         return *this;
     }
 
@@ -613,7 +587,7 @@ DoublyLinkedList<E>& DoublyLinkedList<E>::operator=(const DoublyLinkedList<E>& t
     //and the current object (*this) has least has two nodes.
     current = head;
     current_that = that.head;
-    while (current != getTrueEndNode() && current_that != that.getTrueEndNode())
+    while (current != nullptr && current_that != nullptr)
     {
         current->data = current_that->data;
         current = current->next;
@@ -651,6 +625,8 @@ DoublyLinkedList<E>& DoublyLinkedList<E>::operator=(const DoublyLinkedList<E>& t
     }
     //else both list were of the exact same size.
 
+    this->numberOfNodes = that.numberOfNodes;
+
     return *this;
 }
 //EOF
@@ -667,11 +643,7 @@ void DoublyLinkedList<E>::clear(void)
     delete tail;
     head = tail = nullptr;
     numberOfNodes = 0;
-
-    updateEndNode_Interface_Node();
-    updateBeginNode_Interface_Node();
 }
-//EOF
 
 template<typename E>
 std::ostream& operator<<(std::ostream& out, const DoublyLinkedList<E>& doubly_linsked_list)

@@ -8,6 +8,7 @@ struct Node
     Node<E>* next;
     Node<E>* prev;
     Node(const E& data) : data(data), next(nullptr), prev(nullptr) {}
+    Node(E&& data) : data(std::move(data)), next(nullptr), prev(nullptr) {}
 };
 
 #endif //NODE_STRUCT_H
