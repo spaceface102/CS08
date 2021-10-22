@@ -4,22 +4,26 @@
 #include "doublyLinkedListIterator.h"
 
 template<typename E>
-DoublyLinkedListIterator<E>::DoublyLinkedListIterator(Node<E>* const& ptr) 
-    : current_indirect(&ptr) 
+DoublyLinkedListIterator<E>::DoublyLinkedListIterator(void) 
+    : current(nullptr) 
+{}
+//EOF
+
+template<typename E>
+DoublyLinkedListIterator<E>::DoublyLinkedListIterator(Node<E>* ptr) 
+    : current(ptr) 
 {}
 //EOF
 
 template<typename E>
 E& DoublyLinkedListIterator<E>::operator*(void)
-{
-    return (*current_indirect)->data;
-}
+    {return current->data;}
 //EOF
 
 template<typename E>
 DoublyLinkedListIterator<E>& DoublyLinkedListIterator<E>::operator++(void)
 {
-    current_indirect = &((*current_indirect)->next);
+    current = current->next;
     return *this;
 }
 //EOF

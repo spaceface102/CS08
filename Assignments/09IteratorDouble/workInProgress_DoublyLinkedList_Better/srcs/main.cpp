@@ -79,5 +79,37 @@ int main(void)
     std::cout << "\nJust for the fun of it, displaying original list backwayrds:\n";
     list.display(std::cout, false);
     std::cout << "\n";
+
+    std::cout << "\n\n";
+
+    DoublyLinkedList<float> helloList;
+    
+    std::cout << "Making new list...\n";
+    for (std::size_t i = 0; i < 5; i++)
+        helloList.push_back(std::rand()%20);
+    
+    std::cout << "Iterating over list using DoublyLinkedListIterator\n";
+    for (DoublyLinkedListIterator<float> it = helloList.begin(); it != helloList.end(); ++it)
+        std::cout << *it << " ";
+    std::cout << "\n";
+
+    std::cout << "\nModifying random index with iterator\n";
+    const std::size_t indexToModify = (std::rand())%(helloList.size() - 1) + 1;
+    auto it = helloList.begin();
+    
+    for (std::size_t i = 0; i < indexToModify; ++it, ++i)   {}
+    *it = rand()%1000;
+    std::cout << "Modified index: " << indexToModify << "\n";
+    std::cout << "List: " << helloList << "\n";
+
+    --it;
+    *it = rand()%100000;
+    std::cout << "Modifying index (indexToModify - 1): " << indexToModify - 1 << "\n";
+    std::cout << "List: " << helloList << "\n";
+
+    std::cout << "Testing for range loop (need .begin and .end methods in class)\n";
+    for (float node : helloList)
+        std::cout << node << " ";
+    std::cout << "\n";
     return 0;
 }
