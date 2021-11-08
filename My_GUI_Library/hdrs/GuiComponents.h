@@ -5,7 +5,11 @@
 #include "EventHandler.h"
 #include "StateKeeper.h"
 
-class GuiComponents : public sf::Drawable, public EventHandler, public StateKeeper
+class GuiComponents : 
+    public sf::Drawable,
+    public sf::Transformable,
+    public EventHandler,
+    public StateKeeper
 {
 };
 

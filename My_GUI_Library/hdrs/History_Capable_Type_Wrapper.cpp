@@ -13,4 +13,10 @@ History_TypeWrapper<T>::History_TypeWrapper(const History_TypeWrapper<T>& that) 
     : data(that.data), data_ptr(that.data_ptr)
 {}
 
+template<typename T>
+void History_TypeWrapper<T>::restore(void) noexcept
+{
+    *data_ptr = data;
+}
+
 #endif //HISTORY_CAPABLE_TYPE_WRAPPER_CPP

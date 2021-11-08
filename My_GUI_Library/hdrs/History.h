@@ -9,8 +9,10 @@ class History
 public:
     History(void) = delete;
     History(const History&) = delete;
+    History(History&&) = delete;
     ~History(void) = delete;
     History& operator=(const History&) = delete;
+    History& operator=(History&&) = delete;
 
     template<typename T>
     static void push(T& data_to_push) noexcept;

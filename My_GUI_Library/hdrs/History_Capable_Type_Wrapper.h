@@ -2,7 +2,7 @@
 #define HISTORY_CAPABLE_TYPE_WRAPPER_H
 
 template<typename T>
-struct History_TypeWrapper
+class History_TypeWrapper
 {
 public:
     //DON'T CHANGE ANY TO EXPLICIT CONSTRUCTOR, WILL BREAK
@@ -13,8 +13,12 @@ public:
     History_TypeWrapper(T& data_to_copy) noexcept;
     History_TypeWrapper(const History_TypeWrapper&) noexcept;
 
-    const T data;
-    T* const data_ptr;
+    //Dereferences data_ptr and sets it to data;
+    void restore(void) noexcept;
+
+private:
+    T data;
+    T* data_ptr;
 };
 
 #include "History_Capable_Type_Wrapper.cpp"

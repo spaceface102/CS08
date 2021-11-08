@@ -3,6 +3,7 @@
 
 #include <variant>
 #include "History_Capable_Type_Wrapper.h"
+#include <SFML/Graphics.hpp>
 
 /*
 In order to avoid having to force each implemenation of
@@ -35,19 +36,25 @@ with History class, you must FIRST add it here.
 //This class NEEDS to have the same facilities like
 //History_TypeWrapper, in order so History class
 //can use std::visit with a generic lambda
-struct EmptyClass 
+class EmptyClass : public History_TypeWrapper<std::monostate>
 {
 public:
-    EmptyClass(void) noexcept = default;
-    std::monostate data;
-    std::monostate* data_ptr;
+    //used to enable default constructor for the first varaint
+    //type, necessary if you want to use an array of
+    //History_Capable_Types!
+    EmptyClass(void) noexcept
+        : History_TypeWrapper<std::monostate>{throw_away}
+    {}
+
+private:
+    std::monostate throw_away;
 };
 
 
 //MODIFY HERE!!!!!!!
 typedef std::variant<
     EmptyClass, //LEAVE THIS CLASS ALONE!
-    History_TypeWrapper<int>
+    History_TypeWrapper<sf::CircleShape>
 > History_Capable_Type;
 
 #endif //HISTORY_CAPABLE_TYPES_H

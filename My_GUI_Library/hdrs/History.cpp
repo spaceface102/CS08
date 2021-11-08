@@ -24,7 +24,7 @@ void History::push(T& data_to_push) noexcept
      * EVERY TYPE must be wrapped with
      * History_TypeWrapper<your type>
     */
-    stack.emplace(data_to_push);
+    stack.push(data_to_push);
 }
 
 void History::pop(void) noexcept
@@ -36,7 +36,7 @@ void History::pop(void) noexcept
         return;
 
     std::visit(
-        [](auto& active_node){(*active_node.data_ptr) = active_node.data;},
+        [](auto& active_node){active_node.restore();},
         stack.top()
     );
     stack.pop();
